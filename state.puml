@@ -1,0 +1,58 @@
+@startuml state
+title Диаграмма состояний для заказа
+
+hide empty description
+
+state "Составление пользователем" as Editing
+state "В процессе оформления" as InPr
+state "Оформлен" as Accepted
+state "Завершенный" as Ended
+
+[*] --> Editing 
+Editing --> InPr : Пользователь нажал "Оформить заказ"
+InPr --> Accepted : Пользователь оплатил заказ
+
+
+state "В процессе выполнения" as InProcess
+state InProcess {
+    ' state Sync <<choice>>
+    state Курьер {
+        state start1 <<start>>
+        state end1 <<end>>
+        state "В процессе\nподбора курьера" as CourierSearch
+        state "Подобран курьер" as AcceptedByCourier
+        state "Взятый из ресторана" as Taken
+        state "Доставленный" as Delivered
+        state join_state <<join>>
+        start1 --> CourierSearch : Отправлено\nв предложения\nкурьерам
+        CourierSearch --> AcceptedByCourier : Один из курьеров\nпринял заказ
+        AcceptedByCourier --> join_state : Курьер доехал\nдо ресторана
+        join_state --> Taken : Курьер забрал заказ
+        ' Sync --> join_state
+        Taken --> Delivered : Курьер доехал\nдо пользователя\nи отдал заказ
+        Delivered --> end1
+    }
+    
+    state Ресторан {
+        state start2 <<start>>
+        state end2 <<end>>
+        state "В процессе приготовления" as Cooking
+        state "Приготовленный" as Cooked
+        state fork_state <<fork>>
+        start2 --> Cooking : Ресторан\nполучил заказ
+        Cooking --> Cooked : Ресторан\nприготовил заказ
+        Cooked --> fork_state
+        ' fork_state --> Sync
+        fork_state --> end2 
+    }
+
+    state Sync <<choice>>
+    Sync -> join_state
+    fork_state --> Sync
+}
+
+Accepted --> InProcess : Заказ передан в работу
+InProcess --> Ended
+Ended --> [*]
+
+@enduml

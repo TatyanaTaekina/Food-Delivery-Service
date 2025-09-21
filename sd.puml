@@ -1,0 +1,49 @@
+@startuml sd
+title Диаграмма последовательности для процесса заказа еды через приложение
+
+actor "Пользователь" as User
+participant ":Приложение" as App
+database ":БазаДанных" as BD
+
+activate App
+
+User -> App: ПосмотретьМеню(restaurant_id)
+App -> BD: ПолучитьМеню(restaurant_id)
+activate BD
+App <-- BD: МенюРесторана
+deactivate BD
+User <-- App: МенюРесторана
+
+loop 1+ times
+User -> App: ДобавитьВЗаказ(dish_id, count)
+App -> BD: ДобавитьВКорзину(user_id, dish_id, count)
+activate BD
+App <-- BD: ТекущееСостояниеКорзины
+deactivate BD
+User <-- App: ТекущееСостояниеКорзины
+end
+
+opt
+User -> App: ОчиститьКорзину
+App -> BD: ОчиститьКорзину(user_id)
+activate BD
+App <-- BD: ТекущееСостояниеКорзины
+deactivate BD
+User <-- App: КорзинаОчищена
+end
+
+User -> App: ОформитьЗаказ
+App -> BD: ПолучитьКорзину(user_id)
+activate BD
+App <-- BD: ТекущееСостояниеКорзины
+deactivate BD
+App -> App: СформироватьОплату
+User <-- App: СчетНаОплату
+User -> App: Оплата
+App -> App: ПроверкаОплаты
+App -> App: ПередатьЗаказВВыполнение
+User <-- App: ЗаказОформлен
+
+deactivate App
+
+@enduml 

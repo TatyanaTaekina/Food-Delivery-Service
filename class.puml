@@ -1,0 +1,79 @@
+@startuml state
+title Диаграмма классов для системы
+
+skinparam ClassAttributeIconSize 0
+
+interface "ЛичнаяИнформация" as PInfo {
+    + личнаяИнформация: String[]
+}
+interface "Информация" as Info {
+    +  информация: String[]
+}
+
+class "Пользователь" as User {
+    + id: int
+    + корзина: Cart
+
+    + оформитьЗаказ()
+}
+class "Курьер" as Courier {
+    + id: int
+}
+class "Ресторан" as Restaurant {
+    + id: int
+    + меню: ArrayList<Dish>
+
+    + получитьМеню()
+}
+class "Блюдо" as Dish {
+    + id: int
+
+    + добавитьВКорзину()
+}
+class "Заказ" as Order {
+    + id: int
+    + состояние: enum
+    + содержимое: ArrayList<Dish>
+    + детали: string
+
+    + добавитьДеталиЗаказа()
+    + изменитьСостояние()
+    + оплатить()
+    + подобратьКурьера()
+    + отправитьУведомление()
+    + рассчитатьВремяДоставки()
+    + построитьМаршрут()
+}
+class "Корзина" as Cart {
+    + id: int
+    + содержимое: ArrayList<Dish>
+
+    + очистить()
+    + получитьСодержимое()
+}
+
+class "Модуль оплаты" as PM 
+class "Модуль расчета времени доставки" as DTM
+class "Модуль построения маршрута" as RM
+
+User .u.|> PInfo
+Courier .u.|> PInfo
+Restaurant ..|> Info
+Dish .l.|> Info
+
+
+User "\t\n1" *-u- "1" Cart
+Cart "0..*\t" o-- "1..*" Dish
+Restaurant "\t\t1" o-- "\t\t\t\t1..*\t" Dish
+
+User "1" --> "0..1" Order : инициирует
+Courier "1\n\n\t" --> "\t0..1" Order : доставляет
+Restaurant "1" --> "\n\n\n\n\n\n\n0..*" Order : \n\n\n\n\n\nготовит\t
+Order --> PM : инициализирует\nоплату
+Order --> DTM : запрашивает\nвремя доставки
+Order --> RM : запрашивает\nмаршрут
+
+
+
+
+@enduml

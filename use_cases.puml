@@ -1,0 +1,35 @@
+@startuml use_cases
+title Диаграмма вариантов использования
+
+left to right direction
+
+actor "Пользователь" as User
+actor "Курьер" as Courier
+actor "Ресторан" as Restaurant
+
+package "Система" {
+    usecase "Заказать еду" as MakeOrder
+    usecase "Дополнить заказ деталями" as AddInfo 
+    AddInfo .up.> MakeOrder: extend
+
+    usecase "Оплатить заказ" as PayOrder
+    MakeOrder ..> PayOrder: include
+
+    ' usecase "Оценить выполнение заказа" as RateOrder
+
+    usecase "Принять заказ" as AcceptOrder
+    usecase "Построить маршрут" as PlanRoute
+    AcceptOrder ..> PlanRoute: include
+
+    usecase "Завершить заказ" as EndOrder
+
+    usecase "Приготовить заказ" as CookOrder
+}
+
+User --> MakeOrder
+' User --> RateOrder
+Courier --> AcceptOrder
+Courier --> EndOrder
+Restaurant --> CookOrder
+
+@enduml
